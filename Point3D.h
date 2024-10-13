@@ -4,6 +4,7 @@
 class Point3D
 {
 public:
+	Point3D() = default;
 	Point3D(double x, double y, double z);
 	friend std::ostream& operator<<(std::ostream& out, Point3D pt);
 	

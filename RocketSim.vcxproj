@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Point3D.cpp" />
+    <ClCompile Include="Quat.cpp" />
     <ClCompile Include="Rocket.cpp" />
     <ClCompile Include="RocketSim.cpp" />
     <ClCompile Include="Vector3D.cpp" />
@@ -136,6 +137,7 @@
   <ItemGroup>
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Point3D.h" />
+    <ClInclude Include="Quat.h" />
     <ClInclude Include="Rocket.h" />
     <ClInclude Include="Vector3D.h" />
   </ItemGroup>
