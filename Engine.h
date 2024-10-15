@@ -1,6 +1,7 @@
 #pragma once
 #include "Point3D.h"
 #include "Quat.h"
+#include "Matrix.h"
 #include <array>
 #include <cmath>
 
@@ -8,7 +9,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-using Matrix3x3 = std::array<std::array<double, 3>, 3>;
 
 constexpr double deg2rad(double degrees) {
 	return degrees * (M_PI / 180.0);
@@ -29,12 +29,12 @@ public:
 	// Getters
 	double getMass() const { return m_mass; }
 	Vector3D getThrust();
-	Matrix3x3 getRengine2rocket();
+	Matrix getRengine2rocket();
 	Vector3D getGimbalPoint() { return m_gimbalPoint; };
 
 	// Setters
 	void setThrottle(double t) { m_throttle = t; }
-	// need some kind of setter for gimbal angles
+	void setGimbalAngles(const std::array<double, 3>& angles);
 
 private:
 	Vector3D m_gimbalPoint{};

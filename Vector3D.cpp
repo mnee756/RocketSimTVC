@@ -30,6 +30,10 @@ Vector3D Vector3D::operator/(double scalar)
 	return Vector3D{ m_x / scalar, m_y / scalar, m_z / scalar };
 }
 
+Vector3D Vector3D::operator*(double scalar)
+{
+	return Vector3D{ m_x * scalar, m_y * scalar, m_z * scalar };
+}
 
 Vector3D Vector3D::operator-() const {
 	return Vector3D{ -m_x, -m_y, -m_z };
