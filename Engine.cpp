@@ -4,7 +4,7 @@
 
 Vector3D Engine::getThrust()
 {
-    return Vector3D{ 0.0, 0.0, m_maxThrust * m_throttle };
+    return Vector3D{ 0.0, 0.0, -m_maxThrust * m_throttle };
 }
 
 Matrix3x3 Engine::getRengine2rocket()

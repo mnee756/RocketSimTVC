@@ -30,10 +30,12 @@ public:
 	double getMass() const { return m_mass; }
 	Vector3D getThrust();
 	Matrix3x3 getRengine2rocket();
+	Vector3D getGimbalPoint() { return m_gimbalPoint; };
 
 	// Setters
 	void setThrottle(double t) { m_throttle = t; }
 	// need some kind of setter for gimbal angles
+
 private:
 	Vector3D m_gimbalPoint{};
 	double m_length{};
