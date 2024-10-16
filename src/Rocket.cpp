@@ -37,11 +37,13 @@ void Rocket::dynamics(double dt)
         totalMoment += r.cross(thrust);
     }
 
-    m_accel = totalForce / m_mass;
-    m_vel += m_accel * dt;
-    m_pos += m_vel * dt;
+    m_state.accel = totalForce / m_mass;
+    m_state.vel += m_state.accel * dt;
+    m_state.pos += m_state.vel * dt;
 
-    m_angAccel = m_inertia.inverse() * totalMoment;
-    m_angVel += m_angAccel * dt;
-    m_ang += m_angVel * dt;
+    m_state.angAccel = m_inertia.inverse() * totalMoment;
+    m_state.angVel += m_state.angAccel * dt;
+    m_state.ang += m_state.angVel * dt;
+
+    m_data.push_back(m_state); 
 }
