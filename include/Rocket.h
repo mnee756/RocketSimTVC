@@ -2,6 +2,7 @@
 #include <vector>
 #include "Engine.h"
 
+
 struct RocketState
 {
 	Vector3D pos{};
@@ -38,13 +39,15 @@ public:
 	void dynamics(double dt);
 
 	void printState() const {
-		std::cout << "Position: " << m_state.pos << std::endl;
-		std::cout << "Velocity: " << m_state.vel << std::endl;
-		std::cout << "Acceleration: " << m_state.accel << std::endl;
-		std::cout << "Angular Position: " << m_state.ang << std::endl;
-		std::cout << "Angular Velocity: " << m_state.angVel << std::endl;
-		std::cout << "Angular Acceleration: " << m_state.angAccel << std::endl;
+		std::cout << "Position: "				<< m_state.pos << std::endl;
+		std::cout << "Velocity: "				<< m_state.vel << std::endl;
+		std::cout << "Acceleration: "			<< m_state.accel << std::endl;
+		std::cout << "Angular Position: "		<< m_state.ang << std::endl;
+		std::cout << "Angular Velocity: "		<< m_state.angVel << std::endl;
+		std::cout << "Angular Acceleration: "	<< m_state.angAccel << std::endl;
 	}
+
+	void plotTrajectory() const;
 
 private:
 	void initEngines(double radius);

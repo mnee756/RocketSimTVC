@@ -3,6 +3,8 @@
 #include "constants.h"
 #include "Matrix.h"
 #include "Vector3D.h"
+#include "matplotlibcpp.h"
+namespace plt = matplotlibcpp;
 
 void Rocket::initEngines(double rad) 
 {
@@ -24,8 +26,8 @@ void Rocket::dynamics(double dt)
     m_engines[0].setGimbalAngles({ 1.0 / 180.0 * M_PI, 0.0, 0.0 });
     m_engines[2].setGimbalAngles({ 1.0 / 180.0 * M_PI, 0.0, 0.0 });
 
-    m_engines[1].setGimbalAngles({ 0.0, 1.0 / 180.0 * M_PI, 0.0 });
-    m_engines[3].setGimbalAngles({ 0.0, 1.0 / 180.0 * M_PI, 0.0 });
+    //m_engines[1].setGimbalAngles({ 0.0, 1.0 / 180.0 * M_PI, 0.0 });
+    //m_engines[3].setGimbalAngles({ 0.0, 1.0 / 180.0 * M_PI, 0.0 });
 
     // get the forces and torques on rocket
     totalForce += Vector3D{0.0, 0.0, -m_mass * GRAVITY}; // gravity
@@ -46,4 +48,31 @@ void Rocket::dynamics(double dt)
     m_state.ang += m_state.angVel * dt;
 
     m_data.push_back(m_state); 
+}
+
+void Rocket::plotTrajectory() const
+{
+    std::vector<double> timeData(m_data.size());
+    std::vector<double> xData(m_data.size());
+    std::vector<double> yData(m_data.size());
+    std::vector<double> zData(m_data.size());
+
+
+    for (size_t i = 0; i < m_data.size(); ++i) {
+        timeData[i] = i * 0.1;  //assumes dt =.1
+        xData[i] = m_data[i].pos.getX();  
+        yData[i] = m_data[i].pos.getY();  
+        zData[i] = m_data[i].pos.getZ();  
+    }
+
+    plt::figure();
+    plt::named_plot("X", timeData, xData, "r-");
+    plt::named_plot("Y", timeData, yData, "g-");
+    plt::named_plot("Z", timeData, zData, "b-");
+
+    plt::title("Rocket Trajectory Over Time");
+    plt::xlabel("Time (s)");
+    plt::ylabel("Position (m)");
+    plt::legend();
+    plt::show();
 }
