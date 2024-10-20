@@ -136,6 +136,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="RocketSim.cpp" />
+    <ClCompile Include="src\Controller.cpp" />
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\Rocket.cpp" />
     <ClCompile Include="src\utils\Matrix.cpp" />
@@ -145,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\constants.h" />
+    <ClInclude Include="include\Controller.h" />
     <ClInclude Include="include\Engine.h" />
     <ClInclude Include="include\Rocket.h" />
     <ClInclude Include="include\utils\Matrix.h" />

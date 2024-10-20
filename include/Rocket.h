@@ -21,6 +21,12 @@ struct RocketState
 		angAccel{ 0.0, 0.0, 0.0 } {}
 };
 
+struct Input
+{
+	std::vector<std::vector<double>> gimbalAngles = { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0} };
+	std::vector<double> throttle{0, 0, 0, 0};
+};
+
 class Rocket
 {
 public:
@@ -36,7 +42,11 @@ public:
 		m_inertia[1][1] = (1.0 / 12.0) * m_mass * (3 * m_radius * m_radius + m_length * m_length);
 		m_inertia[2][2] = (1.0 / 2.0) * m_mass * m_radius * m_radius;
 	}
-	void dynamics(double dt);
+	
+	RocketState update(RocketState state, Input input, double dt); // Calculates next state from current state
+	void dynamics(double dt);	  // Calls model and writes to state history
+	void processInput(Input input);
+
 
 	void printState() const {
 		std::cout << "Position: "				<< m_state.pos << std::endl;

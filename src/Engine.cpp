@@ -30,8 +30,8 @@ Matrix Engine::getRengine2rocket()
     return R;
 }
 
-void Engine::setGimbalAngles(const std::array<double, 3>& angles) {
-    for (int i = 0; i < 3; ++i) {
+void Engine::setGimbalAngles(const std::vector<double>& angles) {
+    for (int i = 0; i < 2; ++i) {
         // Check if the angle is within the allowed range
         if (angles[i] < -m_maxGimbalAngle || angles[i] > m_maxGimbalAngle) {
             throw std::invalid_argument("Gimbal angle out of range.");

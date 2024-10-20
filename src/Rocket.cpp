@@ -18,16 +18,12 @@ void Rocket::initEngines(double rad)
     m_engines.emplace_back(Vector3D{  0, -engineRadialPosition, engineLength }, engineLength, thrust, 1); // bottom
 }
 
-void Rocket::dynamics(double dt)
+
+RocketState Rocket::update(RocketState state, Input input, double dt) 
 {
+    processInput(input);
     Vector3D totalForce{};
     Vector3D totalMoment{};
-    
-    m_engines[0].setGimbalAngles({ 1.0 / 180.0 * M_PI, 0.0, 0.0 });
-    m_engines[2].setGimbalAngles({ 1.0 / 180.0 * M_PI, 0.0, 0.0 });
-
-    //m_engines[1].setGimbalAngles({ 0.0, 1.0 / 180.0 * M_PI, 0.0 });
-    //m_engines[3].setGimbalAngles({ 0.0, 1.0 / 180.0 * M_PI, 0.0 });
 
     // get the forces and torques on rocket
     totalForce += Vector3D{0.0, 0.0, -m_mass * GRAVITY}; // gravity
@@ -39,16 +35,39 @@ void Rocket::dynamics(double dt)
         totalMoment += r.cross(thrust);
     }
 
-    m_state.accel = totalForce / m_mass;
-    m_state.vel += m_state.accel * dt;
-    m_state.pos += m_state.vel * dt;
+    state.accel = totalForce / m_mass;
+    state.vel += m_state.accel * dt;
+    state.pos += m_state.vel * dt;
 
-    m_state.angAccel = m_inertia.inverse() * totalMoment;
-    m_state.angVel += m_state.angAccel * dt;
-    m_state.ang += m_state.angVel * dt;
-
-    m_data.push_back(m_state); 
+    state.angAccel = m_inertia.inverse() * totalMoment;
+    state.angVel += m_state.angAccel * dt;
+    state.ang += m_state.angVel * dt;
+    
+    m_state = state; // update state
+    return state;
 }
+
+void Rocket::dynamics(double dt)
+{
+    // TODO: call compute control here. 
+    Input input = {
+    { { deg2rad(1.0) , 0.0,}, {0.0, 0.0}, { deg2rad(1.0), 0.0,}, {0.0, 0.0}}, // gimbalAngles
+    {1.0, 1.0, 1.0, 1.0} // throttle
+    };
+    RocketState state = Rocket::update(m_state, input, dt);
+    m_data.push_back(state); 
+}
+
+void Rocket::processInput(Input input)
+{
+    for (int i{ 0 }; i < m_engines.size(); i++)
+    {
+        m_engines[i].setGimbalAngles(input.gimbalAngles[i]);
+        m_engines[i].setThrottle(input.throttle[i]);
+    }
+}
+
+
 
 void Rocket::plotTrajectory() const
 {
@@ -58,7 +77,7 @@ void Rocket::plotTrajectory() const
     std::vector<double> zData(m_data.size());
 
 
-    for (size_t i = 0; i < m_data.size(); ++i) {
+    for (int i = 0; i < m_data.size(); ++i) {
         timeData[i] = i * 0.1;  //assumes dt =.1
         xData[i] = m_data[i].pos.getX();  
         yData[i] = m_data[i].pos.getY();  

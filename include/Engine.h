@@ -2,7 +2,7 @@
 #include "Point3D.h"
 #include "Quat.h"
 #include "Matrix.h"
-#include <array>
+#include <vector>
 #include <cmath>
 
 #ifndef M_PI
@@ -18,7 +18,7 @@ class Engine
 {
 public:
 	Engine(Vector3D gimbalPoint, double length, double maxThrust = 10, double throttle = 0.0, double mass = 0.0, 
-		double maxGimbalAngle = deg2rad(10.0), std::array<double, 3> gimbalAngle = {0.0, 0.0, 0.0}) :
+		double maxGimbalAngle = deg2rad(10.0), std::vector<double> gimbalAngle = {0.0, 0.0}) :
 		m_gimbalPoint(gimbalPoint),
 		m_length(length),
 		m_maxThrust(maxThrust),
@@ -34,7 +34,7 @@ public:
 
 	// Setters
 	void setThrottle(double t) { m_throttle = t; }
-	void setGimbalAngles(const std::array<double, 3>& angles);
+	void setGimbalAngles(const std::vector<double>& angles);
 
 private:
 	Vector3D m_gimbalPoint{};
@@ -44,5 +44,5 @@ private:
 	double m_maxGimbalAngle{};
 	double m_mass{};
 	Vector3D m_thrust{};
-	std::array<double, 3> m_gimbalAngle{}; //YPR
+	std::vector<double> m_gimbalAngle{}; //YPR
 };
