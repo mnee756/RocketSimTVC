@@ -7,20 +7,26 @@
 class Controller
 {
 public:
-
-	Input computeControl(); //need current state, target state
+	Controller(Rocket rocket, RocketState targetState, double dt, int horizon)
+		: m_rocket(rocket), m_currentState(rocket.getState()), m_targetState(targetState), m_dt(dt), m_horizon(horizon)
+	{
+		setupOptimizer();
+	}
+	Input computeControl(RocketState currentState); //need current state, target state
 private:
-	const Rocket& m_rocket;   
+	Rocket m_rocket;   
+	RocketState m_currentState;
 	RocketState m_targetState;
+	double m_dt;
 	int m_horizon;
-	// some Matrix m_R;
-	// we really should have a model here
+	// some Matrix m_R
 	nlopt::opt optimizer;
 
 	void setupOptimizer();
 	bool optimize(std::vector<Input>& u);
+	double objectiveFunction(const std::vector<double>& u, std::vector<double>& grad, void* data);
 	static double objectiveFunctionWrapper(const std::vector<double>& u, std::vector<double>& grad, void* data);
-	// predictStates? can use m_rocket to do that
+	std::vector<RocketState> predictStates(const std::vector<Input>& inputs);
 
-	double computeCost(const std::vector<RocketState>& predictedStates, const std::vector<Input>& inputs);
+	double computeCost(std::vector<RocketState>& predictedStates, std::vector<Input>& inputs);
 };

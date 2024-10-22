@@ -18,7 +18,7 @@ class Engine
 {
 public:
 	Engine(Vector3D gimbalPoint, double length, double maxThrust = 10, double throttle = 0.0, double mass = 0.0, 
-		double maxGimbalAngle = deg2rad(10.0), std::vector<double> gimbalAngle = {0.0, 0.0}) :
+		double maxGimbalAngle = deg2rad(30.0), std::vector<double> gimbalAngle = {0.0, 0.0}) :
 		m_gimbalPoint(gimbalPoint),
 		m_length(length),
 		m_maxThrust(maxThrust),

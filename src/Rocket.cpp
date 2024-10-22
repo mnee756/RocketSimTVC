@@ -36,25 +36,20 @@ RocketState Rocket::update(RocketState state, Input input, double dt)
     }
 
     state.accel = totalForce / m_mass;
-    state.vel += m_state.accel * dt;
-    state.pos += m_state.vel * dt;
+    state.vel += state.accel * dt;
+    state.pos += state.vel * dt;
 
     state.angAccel = m_inertia.inverse() * totalMoment;
-    state.angVel += m_state.angAccel * dt;
-    state.ang += m_state.angVel * dt;
+    state.angVel += state.angAccel * dt;
+    state.ang += state.angVel * dt;
     
-    m_state = state; // update state
     return state;
 }
 
-void Rocket::dynamics(double dt)
-{
-    // TODO: call compute control here. 
-    Input input = {
-    { { deg2rad(1.0) , 0.0,}, {0.0, 0.0}, { deg2rad(1.0), 0.0,}, {0.0, 0.0}}, // gimbalAngles
-    {1.0, 1.0, 1.0, 1.0} // throttle
-    };
+void Rocket::dynamics(Input input, double dt)
+{ 
     RocketState state = Rocket::update(m_state, input, dt);
+    m_state = state;
     m_data.push_back(state); 
 }
 

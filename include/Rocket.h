@@ -19,12 +19,38 @@ struct RocketState
 		ang{ 0.0, 0.0, 0.0 },
 		angVel{ 0.0, 0.0, 0.0 },
 		angAccel{ 0.0, 0.0, 0.0 } {}
+
+	RocketState(Vector3D position)
+		: pos{ position },
+		vel{ 0.0, 0.0, 0.0 },
+		accel{ 0.0, 0.0, 0.0 },
+		ang{ 0.0, 0.0, 0.0 },
+		angVel{ 0.0, 0.0, 0.0 },
+		angAccel{ 0.0, 0.0, 0.0 } {}
 };
 
 struct Input
 {
 	std::vector<std::vector<double>> gimbalAngles = { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0} };
 	std::vector<double> throttle{0, 0, 0, 0};
+
+	Input()
+		: gimbalAngles(4, std::vector<double>(2, 0.0)), throttle(4, 0.0) {}
+
+	Input(std::vector<std::vector<double>> gAngles, std::vector<double> thr)
+		: gimbalAngles(std::move(gAngles)), throttle(std::move(thr)) {}
+
+	friend std::ostream& operator<<(std::ostream& out, Input input)
+	{
+		out << "Input details:\n";
+		for (int i = 0; i < input.throttle.size(); ++i) {
+			out << "Throttle[" << i << "]: " << input.throttle[i] << "\n";
+		}
+		for (int i = 0; i < input.gimbalAngles.size(); ++i) {
+			out << "Gimbal angles[" << i << "]: " << input.gimbalAngles[i][0] << ", " << input.gimbalAngles[i][1] << "\n";
+		}
+		return out;
+	}
 };
 
 class Rocket
@@ -44,7 +70,7 @@ public:
 	}
 	
 	RocketState update(RocketState state, Input input, double dt); // Calculates next state from current state
-	void dynamics(double dt);	  // Calls model and writes to state history
+	void dynamics(Input input, double dt);	  // Calls model and writes to state history
 	void processInput(Input input);
 
 
@@ -58,6 +84,7 @@ public:
 	}
 
 	void plotTrajectory() const;
+	RocketState getState() { return m_state; }
 
 private:
 	void initEngines(double radius);
