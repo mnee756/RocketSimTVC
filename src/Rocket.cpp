@@ -19,7 +19,7 @@ void Rocket::initEngines(double rad)
 }
 
 
-RocketState Rocket::update(RocketState state, Input input, double dt) 
+RocketState Rocket::dynamics(RocketState state, Input input, double dt) 
 {
     processInput(input);
     Vector3D totalForce{};
@@ -46,9 +46,9 @@ RocketState Rocket::update(RocketState state, Input input, double dt)
     return state;
 }
 
-void Rocket::dynamics(Input input, double dt)
+void Rocket::update(Input input, double dt)
 { 
-    RocketState state = Rocket::update(m_state, input, dt);
+    RocketState state = Rocket::dynamics(m_state, input, dt);
     m_state = state;
     m_data.push_back(state); 
 }

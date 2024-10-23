@@ -12,14 +12,14 @@ public:
 	{
 		setupOptimizer();
 	}
-	Input computeControl(RocketState currentState); //need current state, target state
+	Input computeControl(RocketState currentState, RocketState targetState); 
 private:
 	Rocket m_rocket;   
 	RocketState m_currentState;
 	RocketState m_targetState;
 	double m_dt;
 	int m_horizon;
-	// some Matrix m_R
+	// some Matrix m_R (see computeCost)
 	nlopt::opt optimizer;
 
 	void setupOptimizer();

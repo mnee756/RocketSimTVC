@@ -5,9 +5,10 @@ std::vector<double> flattenInput(const Input& input);
 Input unflattenInput(const std::vector<double>& flat);
 
 
-Input Controller::computeControl(RocketState currentState)
+Input Controller::computeControl(RocketState currentState, RocketState targetState)
 {
     m_currentState = currentState;
+    m_targetState = targetState;
     std::vector<Input> optimalControls(m_horizon);
 
     // Call optimize to get the optimal control inputs
@@ -24,7 +25,7 @@ Input Controller::computeControl(RocketState currentState)
 void Controller::setupOptimizer()
 {
     
-    int numVars = m_horizon * 12; // 8 gimbal angles + 4 throttle values
+    int numVars = m_horizon * 12; // 8 gimbal angles + 4 throttle  
     optimizer = nlopt::opt(nlopt::LD_SLSQP, numVars);
     
     // Set specific lower and upper bounds for throttle and gimbal angles
@@ -32,11 +33,11 @@ void Controller::setupOptimizer()
     std::vector<double> upperBounds;
 
     for (int i = 0; i < m_horizon; ++i) {
-        // Bounds for gimbal angles (8 values, assuming range is -30 to 30 degrees)
+        // Bounds for gimbal angles
         lowerBounds.insert(lowerBounds.end(), 8, deg2rad(-20.0));
         upperBounds.insert(upperBounds.end(), 8, deg2rad(20.0));
 
-        // Bounds for throttle (4 values)
+        // Bounds for throttle 
         lowerBounds.insert(lowerBounds.end(), 4, 0.0); 
         upperBounds.insert(upperBounds.end(), 4, 1.0); 
     }
@@ -58,7 +59,7 @@ void Controller::setupOptimizer()
 bool Controller::optimize(std::vector<Input>& u)
 {
     // Flatten the entire vector of Input for the optimizer
-    std::vector<double> initialGuess;
+    std::vector<double> initialGuess;  // might not be a bad idea to initialize the initial guess as the previous control...
     for (const auto& input : u) {
         auto flatInput = flattenInput(input);
         initialGuess.insert(initialGuess.end(), flatInput.begin(), flatInput.end());
@@ -70,7 +71,7 @@ bool Controller::optimize(std::vector<Input>& u)
 
     if (result < 0) {
         std::cerr << "Optimization failed!" << std::endl;
-        return false; // Handle optimization failure
+        return false; 
     }
 
     // Convert back to Input
@@ -86,7 +87,6 @@ double Controller::objectiveFunction(const std::vector<double>& u, std::vector<d
 
     std::vector<RocketState> predictedStates;
     std::vector<Input> inputs; // Vector to store inputs for computeCost
-    RocketState currentState = m_currentState; // Use current state
 
     // Reassemble vector of inputs
     for (int i = 0; i < m_horizon; ++i) {
@@ -98,7 +98,7 @@ double Controller::objectiveFunction(const std::vector<double>& u, std::vector<d
     predictedStates = predictStates(inputs);    
     double cost = computeCost(predictedStates, inputs); 
 
-    // Loop to calculate the gradient if needed;
+    // Gradient Calculation 
     if (!grad.empty()) {
         const double epsilon = 1e-3;
         std::vector<double> u_perturbed = u;
@@ -143,7 +143,7 @@ std::vector<RocketState> Controller::predictStates(const std::vector<Input>& inp
 
     for (const auto& input : inputs)
     {
-        currentState = m_rocket.update(currentState, input, m_dt);
+        currentState = m_rocket.dynamics(currentState, input, m_dt);
         predictedStates.push_back(currentState);
     }
 

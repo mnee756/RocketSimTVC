@@ -69,8 +69,8 @@ public:
 		m_inertia[2][2] = (1.0 / 2.0) * m_mass * m_radius * m_radius;
 	}
 	
-	RocketState update(RocketState state, Input input, double dt); // Calculates next state from current state
-	void dynamics(Input input, double dt);	  // Calls model and writes to state history
+	RocketState dynamics(RocketState state, Input input, double dt); // Calculates next state from current state
+	void update(Input input, double dt);							 // Calls dynamics() and writes to state history
 	void processInput(Input input);
 
 
