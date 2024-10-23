@@ -1,0 +1,1 @@
+In this project, Model Predictive Control is used to control a rocket with thrust vector control (TVC). The rocket is modeled after Firefly Alpha's second stage, featuring four engines with dual-axis gimballing.
