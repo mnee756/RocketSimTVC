@@ -27,6 +27,8 @@ private:
 	double objectiveFunction(const std::vector<double>& u, std::vector<double>& grad, void* data);
 	static double objectiveFunctionWrapper(const std::vector<double>& u, std::vector<double>& grad, void* data);
 	std::vector<RocketState> predictStates(const std::vector<Input>& inputs);
-
 	double computeCost(std::vector<RocketState>& predictedStates, std::vector<Input>& inputs);
+
+	std::vector<double> flattenInput(const std::vector<Input>& input);
+	std::vector<Input> unflattenInput(const std::vector<double>& flat);
 };

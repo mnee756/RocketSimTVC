@@ -1,8 +1,7 @@
 #include "Controller.h"
 #include <vector>
 
-std::vector<double> flattenInput(const Input& input);
-Input unflattenInput(const std::vector<double>& flat);
+
 
 
 Input Controller::computeControl(RocketState currentState, RocketState targetState)
@@ -59,11 +58,7 @@ void Controller::setupOptimizer()
 bool Controller::optimize(std::vector<Input>& u)
 {
     // Flatten the entire vector of Input for the optimizer
-    std::vector<double> initialGuess;  // might not be a bad idea to initialize the initial guess as the previous control...
-    for (const auto& input : u) {
-        auto flatInput = flattenInput(input);
-        initialGuess.insert(initialGuess.end(), flatInput.begin(), flatInput.end());
-    }
+    std::vector<double> initialGuess = flattenInput(u);  // might not be a bad idea to initialize the initial guess as the previous control...
     double minf;
     
     // Run the optimization process
@@ -75,10 +70,7 @@ bool Controller::optimize(std::vector<Input>& u)
     }
 
     // Convert back to Input
-    for (int i = 0; i < u.size(); ++i) {
-        std::vector<double> subVector(initialGuess.begin() + i * 12, initialGuess.begin() + (i + 1) * 12);
-        u[i] = unflattenInput(subVector); 
-    }
+    u = unflattenInput(initialGuess);
 
     return true;
 }
@@ -86,14 +78,7 @@ bool Controller::optimize(std::vector<Input>& u)
 double Controller::objectiveFunction(const std::vector<double>& u, std::vector<double>& grad, void* data) {
 
     std::vector<RocketState> predictedStates;
-    std::vector<Input> inputs; // Vector to store inputs for computeCost
-
-    // Reassemble vector of inputs
-    for (int i = 0; i < m_horizon; ++i) {
-        std::vector<double> inputSlice(u.begin() + i * 12, u.begin() + (i + 1) * 12);
-        Input input = unflattenInput(inputSlice);
-        inputs.push_back(input); 
-    }
+    std::vector<Input> inputs = unflattenInput(u); // Vector to store inputs for computeCost
 
     predictedStates = predictStates(inputs);    
     double cost = computeCost(predictedStates, inputs); 
@@ -105,15 +90,12 @@ double Controller::objectiveFunction(const std::vector<double>& u, std::vector<d
         
         // Loop over each control variable to approximate the gradient
         for (int i = 0; i < u.size(); ++i) {
+
             // Perturb the control variable
             u_perturbed[i] += epsilon;
-
-            std::vector<Input> perturbed_inputs;
-            for (int j = 0; j < m_horizon; ++j) {
-                std::vector<double> inputSlice(u_perturbed.begin() + j * 12, u_perturbed.begin() + (j + 1) * 12);
-                Input input = unflattenInput(inputSlice);
-                perturbed_inputs.push_back(input);
-            }
+            std::vector<Input> perturbed_inputs = unflattenInput(u_perturbed); 
+            //inneficient. maybe don't bother with u_perturbed, just loop through inputs instead... But at readability cost.
+            
             std::vector<RocketState> perturbedPredictedStates = predictStates(perturbed_inputs);
             double perturbedCost = computeCost(perturbedPredictedStates, perturbed_inputs);
 
@@ -183,35 +165,41 @@ double Controller::computeCost(std::vector<RocketState>& predictedStates, std::v
     return totalCost;
 }
 
-std::vector<double> flattenInput(const Input& input) {
+std::vector<double> Controller::flattenInput(const std::vector<Input>& inputs) {
     std::vector<double> flat;
 
-    // Flatten gimbal angles (2D vector)
-    for (const auto& angles : input.gimbalAngles) {
-        flat.insert(flat.end(), angles.begin(), angles.end());
+    for (const auto& input : inputs) {
+        for (const auto& angles : input.gimbalAngles) {
+            flat.insert(flat.end(), angles.begin(), angles.end());
+        }
+        flat.insert(flat.end(), input.throttle.begin(), input.throttle.end());
     }
-
-    // Flatten throttle
-    flat.insert(flat.end(), input.throttle.begin(), input.throttle.end());
-
     return flat;
 }
 
-Input unflattenInput(const std::vector<double>& flat) {
-    Input input;
-
-    // Assuming gimbalAngles is 4x2
+std::vector<Input> Controller::unflattenInput(const std::vector<double>& flat) {
+    std::vector<Input> inputs;
     int index = 0;
-    for (int i = 0; i < 4; ++i) {
-        input.gimbalAngles[i][0] = flat[index++];
-        input.gimbalAngles[i][1] = flat[index++];
+
+    // Loop for the number of time steps (m_horizon)
+    for (int t = 0; t < m_horizon; ++t) {
+        Input input;
+
+        // Assuming gimbalAngles is 4x2
+        for (int i = 0; i < 4; ++i) {
+            input.gimbalAngles[i][0] = flat[index++];
+            input.gimbalAngles[i][1] = flat[index++];
+        }
+
+        // Unflatten throttle
+        for (int i = 0; i < 4; ++i) {
+            input.throttle[i] = flat[index++];
+        }
+
+        inputs.push_back(input);
     }
 
-    // Unflatten throttle
-    for (int i = 0; i < 4; ++i) {
-        input.throttle[i] = flat[index++];
-    }
-
-    return input;
+    return inputs;
 }
+
 
