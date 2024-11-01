@@ -22,6 +22,8 @@ private:
 	// some Matrix m_R (see computeCost)
 	nlopt::opt optimizer;
 
+	
+
 	void setupOptimizer();
 	bool optimize(std::vector<Input>& u);
 	double objectiveFunction(const std::vector<double>& u, std::vector<double>& grad, void* data);

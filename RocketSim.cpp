@@ -16,16 +16,24 @@ int main() {
     double rocketMass{ 100000.0 };
 
     // Mission Constants
-    const double burnDuration = 15.0; 
+    const double burnDuration = 20.0; 
     const double dt = 0.1;
-    Vector3D targetPos{ 0.0, 0.0, 10.0 };   
+    Vector3D targetPos{ 1.0, 0.5, 10.0 };   
     RocketState targetState{targetPos};
-    int horizon{ 3 }; // horizon for mpc control
+    Vector3D targetPos2{ 1.0, 1.0, 12.0 };
+    RocketState targetState2{ targetPos2 };
+    int horizon{ 10 }; // horizon for mpc control
     
     Rocket MaxiRocket{ rocketLength, rocketRadius, rocketMass };
     Controller mpcController(MaxiRocket, targetState, dt, horizon);
 
     for (double time = 0; time < burnDuration; time += dt) {
+        //std::cout << time << '\n';
+        if (time > 14)
+        {    
+            targetState = targetState2;
+        }
+            
         Input input = mpcController.computeControl(MaxiRocket.getState(), targetState);  // returns optimal control for current time step
         MaxiRocket.update(input, dt);                                                  // updates the state of rocket given the input
     }
