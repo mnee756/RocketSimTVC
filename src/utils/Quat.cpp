@@ -1,41 +1,49 @@
 #include "Quat.h"
 
-void Quat::normalize() 
+
+void Quat::normalize()
 {
-     double norm = std::sqrt(m_x * m_x + m_y * m_y + m_z * m_z + m_w * m_w);
-     if (norm > 0.0) {
-         m_x /= norm;
-         m_y /= norm;
-         m_z /= norm;
-         m_w /= norm;
-     }
+    double norm = std::sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+    if (norm > 0.0)
+    {
+        for (int i = 0; i < 4; ++i)
+            q[i] /= norm;
+    }
 }
 
-Quat Quat::operator*(const Quat& q) const {
+
+Quat Quat::operator*(const Quat& q2) const
+{
+    // [w, x, y, z] * [w', x', y', z']
     return Quat(
-        m_x * q.m_w + m_y * q.m_z - m_z * q.m_y + m_w * q.m_x,
-        m_z * q.m_x - m_y * q.m_w + m_x * q.m_y + m_w * q.m_z,
-        m_y * q.m_x + m_x * q.m_w - m_z * q.m_z + m_w * q.m_y,
-        m_w * q.m_w - m_x * q.m_x - m_y * q.m_y - m_z * q.m_z
+        q[3] * q2.q[0] + q[0] * q2.q[3] + q[1] * q2.q[2] - q[2] * q2.q[1],  // x
+        q[3] * q2.q[1] - q[0] * q2.q[2] + q[1] * q2.q[3] + q[2] * q2.q[0],  // y
+        q[3] * q2.q[2] + q[0] * q2.q[1] - q[1] * q2.q[0] + q[2] * q2.q[3],  // z
+        q[3] * q2.q[3] - q[0] * q2.q[0] - q[1] * q2.q[1] - q[2] * q2.q[2]   // w
     );
 }
 
-
-void Quat::rotate(Vector3D& vec) const {
-    Quat qv(vec.getX(), vec.getY(), vec.getZ(), 0.0);  // Vector as quaternion
-    Quat qr = (*this) * qv * conjugate(); // q * v * q*
-    vec.setX(qr.m_x);  // Rotated vector components
-    vec.setY(qr.m_y);
-    vec.setZ(qr.m_z);
-}
-
-Quat Quat::conjugate() const {
-    return Quat(-m_x, -m_y, -m_z, m_w);
-}
-
-
-std::ostream& operator<<(std::ostream& out, Quat q)
+Vector3D Quat::rotate(const Vector3D& vec) const
 {
-    out << "Quaternion(" << q.m_x << ", " << q.m_y << ", " << q.m_z << ", " << q.m_w << ")\n";
+    Quat q_vec(vec.getX(), vec.getY(), vec.getZ(), 0.0);  
+    Quat q_conjugate = conjugate();
+
+    Quat q_rotated = (*this) * q_vec * q_conjugate;
+    return Vector3D(q_rotated.q[0], q_rotated.q[1], q_rotated.q[2]);
+}
+
+Quat Quat::conjugate() const
+{
+    return Quat(-q[0], -q[1], -q[2], q[3]);
+}
+
+Quat Quat::inverse() const
+{
+    return conjugate(); // For unit quaternions, inverse is the conjugate
+}
+
+std::ostream& operator<<(std::ostream& out, const Quat& q)
+{
+    out << "(" << q.q[0] << ", " << q.q[1] << ", " << q.q[2] << ", " << q.q[3] << ")";
     return out;
 }

@@ -1,30 +1,36 @@
 #pragma once
 #include <iostream>
 #include <cmath>
+#include <array>
 #include "Vector3D.h"
+#include "Matrix.h"
 
 class Quat
 {
 public:
-    Quat() : m_x{ 0.0 }, m_y{ 0.0 }, m_z { 0.0 }, m_w{ 0.0 } {}
+    Quat() : q{ 0.0, 0.0, 0.0, 1.0 } {} 
 
-    Quat(double x, double y, double z, double w)
-        : m_x(x), m_y(y), m_z(z), m_w(w) {
+    Quat(double x, double y, double z, double w) : q{ x, y, z, w } {
         normalize();
     }
 
+    Quat operator*(const Quat& q2) const;
+
+    Vector3D rotate(const Vector3D& vec) const;
+
+    Quat conjugate() const;
+
+    Quat inverse() const;
+
+    // Normalize the quaternion
     void normalize();
-    Quat operator*(const Quat& q) const;
 
-    // Rotate a vector using the quaternion
-    void rotate(Vector3D& vec) const; 
+    // static Quat fromAxisAngle(const Vector3D& axis, double angle);
 
-    Quat conjugate() const; 
-    friend std::ostream& operator<<(std::ostream& out, Quat q);
-    
+    // Matrix toRotationMatrix() const;
+
+    friend std::ostream& operator<<(std::ostream& out, const Quat& q);
+    std::array<double, 4> q; // [x, y, z, w]
 private:
-    double m_x{};
-    double m_y{};
-    double m_z{};
-    double m_w{};
+    
 };
