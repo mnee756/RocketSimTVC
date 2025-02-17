@@ -17,7 +17,7 @@ Input Controller::computeControl(RocketState currentState, RocketState targetSta
     }
     else {
         std::cerr << "Optimization failed!" << std::endl;
-        return Input(); // Return a default constructed Input struct
+        return Input(); 
     }
 }
 
@@ -27,7 +27,7 @@ void Controller::setupOptimizer()
     int numVars = m_horizon * 12; // 8 gimbal angles + 4 throttle  
     optimizer = nlopt::opt(nlopt::LD_SLSQP, numVars);
     
-    // Set specific lower and upper bounds for throttle and gimbal angles
+    
     std::vector<double> lowerBounds;
     std::vector<double> upperBounds;
 
@@ -46,7 +46,7 @@ void Controller::setupOptimizer()
     optimizer.set_min_objective(objectiveFunctionWrapper, this);
     
     optimizer.set_ftol_rel(1e-5);
-    //optimizer.set_maxeval(1000);
+    optimizer.set_maxeval(8000);
 
     // Optional: Set step sizes
     //std::vector<double> stepSizes(numVars, 0.01);
@@ -138,16 +138,15 @@ double Controller::computeCost(std::vector<RocketState>& predictedStates, std::v
     double totalCost = 0.0;
 
     double trackingWeight = 1.0;
-    double controlEffortWeight = 0.01;
+    double controlEffortWeight = 0.0;
+    double tiltWeight = 1e5;
+
     
+
     for (int i = 0; i < predictedStates.size(); ++i)
     {
         // Tracking error cost
         double trackingError = (predictedStates[i].pos - m_targetState.pos).magnitude();
-        //
-        //    + (predictedStates[i].vel - m_targetState.vel).norm() +
-        //    (predictedStates[i].ang - m_targetState.ang).norm() +
-        //    (predictedStates[i].angVel - m_targetState.angVel).norm();
 
         // Control effort costs
         double controlEffort = 0.0;
@@ -158,8 +157,17 @@ double Controller::computeCost(std::vector<RocketState>& predictedStates, std::v
                 std::pow(inputs[i].gimbalAngles[j][1], 2); 
         }
 
+        Vector3D zAxis = m_rocket.transformToWorldFrame(Vector3D(0, 0, 1), predictedStates[i]); // Use your transform function here
+        double tiltDeviation = 1.0 - std::abs(zAxis.dot(Vector3D(0, 0, 1))); // Deviation from vertical (dot product with world Z-axis)
+        double tiltCost = tiltDeviation * tiltDeviation;
+
+
         totalCost += trackingWeight * trackingError;
+        //std::cout << "tracking cost: " << totalCost << '\n';
         totalCost += controlEffortWeight * controlEffort;
+        //std::cout << "control effort cost: " << controlEffortWeight * controlEffort << '\n';
+        totalCost += tiltWeight * tiltCost;
+        //std::cout << "tilt cost: " << tiltWeight * tiltCost << '\n';
     }
 
     return totalCost;

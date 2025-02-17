@@ -12,10 +12,17 @@ public:
     Matrix inverse() const; 
     Matrix operator*(const Matrix& other) const; 
     Vector3D operator*(const Vector3D& vec) const;
+    Matrix transpose();
 
+    std::vector<std::vector<double>> M; 
+    friend std::ostream& operator<<(std::ostream& out, const Matrix& A);
 
 private:
     int m_rows; 
     int m_cols; 
-    std::vector<std::vector<double>> m_data; 
+    
 };
+
+Matrix R1(double a);
+Matrix R2(double a);
+Matrix R3(double a);

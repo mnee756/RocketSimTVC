@@ -10,15 +10,17 @@
 
 namespace plt = matplotlibcpp;
 int main() {
+
     // Rocket Constants
     double rocketLength{20.0};
     double rocketRadius{ 3.0 };
-    double rocketMass{ 100000.0 };
+    double rocketMass{ 90000.0 };
 
     // Mission Constants
     const double burnDuration = 20.0; 
     const double dt = 0.1;
-    Vector3D targetPos{ 1.0, 0.5, 10.0 };   
+    //Vector3D targetPos{ 1.0, 0.5, 10.0 };   
+    Vector3D targetPos{ 0.0, 0.0, 50.0 };
     RocketState targetState{targetPos};
     Vector3D targetPos2{ 1.0, 1.0, 12.0 };
     RocketState targetState2{ targetPos2 };
@@ -29,13 +31,13 @@ int main() {
 
     for (double time = 0; time < burnDuration; time += dt) {
         //std::cout << time << '\n';
-        if (time > 14)
+        /*if (time > 14)
         {    
             targetState = targetState2;
-        }
+        }*/
             
         Input input = mpcController.computeControl(MaxiRocket.getState(), targetState);  // returns optimal control for current time step
-        MaxiRocket.update(input, dt);                                                  // updates the state of rocket given the input
+        MaxiRocket.update(input, dt);                                                    // updates the state of rocket given the input
     }
 
     std::cout << "Rocket burn complete.\n";

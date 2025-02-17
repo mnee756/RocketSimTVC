@@ -23,6 +23,11 @@ Quat Quat::operator*(const Quat& q2) const
     );
 }
 
+Quat Quat::operator*(const double d) const
+{
+    return Quat(q[0] * d, q[1] * d, q[2] * d, q[3] * d);
+}
+
 Vector3D Quat::rotate(const Vector3D& vec) const
 {
     Quat q_vec(vec.getX(), vec.getY(), vec.getZ(), 0.0);  

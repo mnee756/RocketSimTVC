@@ -18,30 +18,58 @@ void Rocket::initEngines(double rad)
     m_engines.emplace_back(Vector3D{  0, -engineRadialPosition, engineLength }, engineLength, thrust, 1); // bottom
 }
 
+Vector3D Rocket::transformToBodyFrame(Vector3D vec, RocketState state)
+{
+    Quat vecq(vec.getX(), vec.getY(), vec.getZ(), 0);
+    Quat Qbody = state.q.inverse() * vecq * state.q;
+    return Vector3D(Qbody[0], Qbody[1], Qbody[2]);
+}
+
+Vector3D Rocket::transformToWorldFrame(Vector3D vec, RocketState state)
+{
+    Quat vecq(vec.getX(), vec.getY(), vec.getZ(), 0);
+    Quat Qworld = state.q * vecq * state.q.inverse();
+    return Vector3D(Qworld[0], Qworld[1], Qworld[2]);
+}
+
 
 RocketState Rocket::dynamics(RocketState state, Input input, double dt) 
 {
     processInput(input);
-    Vector3D totalForce{};
+    Vector3D totalForce_b{}; // body frame forces.
     Vector3D totalMoment{};
 
-    // get the forces and torques on rocket
-    totalForce += Vector3D{0.0, 0.0, -m_mass * GRAVITY}; // gravity
+    Vector3D g_world = Vector3D{0.0, 0.0, -m_mass * GRAVITY}; 
+    totalForce_b += transformToBodyFrame(g_world, state);
+    //std::cout << "gravity body: " << totalForce_b << '\n';
     for (auto& engine : m_engines)
     {
         Vector3D thrust = engine.getRengine2rocket() * engine.getThrust();
-        totalForce += thrust;
+        totalForce_b += thrust;
         Vector3D r = engine.getGimbalPoint() - m_cg;
         totalMoment += r.cross(thrust);
     }
 
-    state.accel = totalForce / m_mass;
-    state.vel += state.accel * dt;
+    // WORLD accel
+    Vector3D accel = transformToWorldFrame(totalForce_b / m_mass, state);
+    // WORLD velocity
+    state.vel += accel * dt;
+    // WORLD position
     state.pos += state.vel * dt;
 
-    state.angAccel = m_inertia.inverse() * totalMoment;
-    state.angVel += state.angAccel * dt;
-    state.ang += state.angVel * dt;
+    // BODY angaccel
+    Vector3D angAccel = m_inertia.inverse() * (totalMoment - state.angVel.cross(m_inertia * state.angVel));
+    // BODY angVel
+    state.angVel += angAccel * dt;
+
+    // Quaternion propagation 
+    Quat q_w(state.angVel.getX(), state.angVel.getY(), state.angVel.getZ(), 0);
+    state.qDot = state.q * q_w * 0.5;
+    
+    for (int i = 0; i < 4; ++i) {
+        state.q[i] += state.qDot[i] * dt;
+    }
+    state.q.normalize();
     
     return state;
 }
