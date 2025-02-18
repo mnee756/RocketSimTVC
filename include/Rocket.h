@@ -39,7 +39,7 @@ struct Input
 	Input(std::vector<std::vector<double>> gAngles, std::vector<double> thr)
 		: gimbalAngles(std::move(gAngles)), throttle(std::move(thr)) {}
 
-	friend std::ostream& operator<<(std::ostream& out, Input input)
+	friend std::ostream& operator<<(std::ostream& out,Input input)
 	{
 		out << "Input details:\n";
 		for (int i = 0; i < input.throttle.size(); ++i) {
@@ -68,11 +68,11 @@ public:
 		m_inertia[2][2] = (1.0 / 2.0) * m_mass * m_radius * m_radius;
 	}
 	
-	RocketState dynamics(RocketState state, Input input, double dt); // Calculates next state from current state
-	void update(Input input, double dt);				// Calls dynamics() and writes to state history
-	void processInput(Input input);
-	Vector3D transformToBodyFrame(Vector3D vec, RocketState state);
-	Vector3D transformToWorldFrame(Vector3D vec, RocketState state);
+	RocketState dynamics(RocketState state, const Input& input, double dt); // Calculates next state from current state
+	void update(const Input& input, double dt);				// Calls dynamics() and writes to state history
+	void processInput(const Input& input);
+	Vector3D transformToBodyFrame(Vector3D vec, RocketState& state);
+	Vector3D transformToWorldFrame(Vector3D vec, RocketState& state);
 
 	void printState() const {
 		std::cout << "Position: " << m_state.pos << std::endl;
@@ -84,7 +84,7 @@ public:
 
 
 	void plotTrajectory() const;
-	RocketState getState() { return m_state; }
+	RocketState& getState() { return m_state; }
 
 private:
 	void initEngines(double radius);

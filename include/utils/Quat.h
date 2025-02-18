@@ -11,7 +11,6 @@ public:
     Quat() : q{ 0.0, 0.0, 0.0, 1.0 } {} 
 
     Quat(double x, double y, double z, double w) : q{ x, y, z, w } {
-        // normalize();
     }
 
     Quat operator*(const Quat& q2) const;

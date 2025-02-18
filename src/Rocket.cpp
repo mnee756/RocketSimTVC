@@ -18,14 +18,14 @@ void Rocket::initEngines(double rad)
     m_engines.emplace_back(Vector3D{  0, -engineRadialPosition, engineLength }, engineLength, thrust, 1); // bottom
 }
 
-Vector3D Rocket::transformToBodyFrame(Vector3D vec, RocketState state)
+Vector3D Rocket::transformToBodyFrame(Vector3D vec, RocketState& state)
 {
     Quat vecq(vec.getX(), vec.getY(), vec.getZ(), 0);
     Quat Qbody = state.q.inverse() * vecq * state.q;
     return Vector3D(Qbody[0], Qbody[1], Qbody[2]);
 }
 
-Vector3D Rocket::transformToWorldFrame(Vector3D vec, RocketState state)
+Vector3D Rocket::transformToWorldFrame(Vector3D vec, RocketState& state)
 {
     Quat vecq(vec.getX(), vec.getY(), vec.getZ(), 0);
     Quat Qworld = state.q * vecq * state.q.inverse();
@@ -33,7 +33,7 @@ Vector3D Rocket::transformToWorldFrame(Vector3D vec, RocketState state)
 }
 
 
-RocketState Rocket::dynamics(RocketState state, Input input, double dt) 
+RocketState Rocket::dynamics(RocketState state, const Input& input, double dt) 
 {
     processInput(input);
     Vector3D totalForce_b{}; // body frame forces.
@@ -74,14 +74,14 @@ RocketState Rocket::dynamics(RocketState state, Input input, double dt)
     return state;
 }
 
-void Rocket::update(Input input, double dt)
+void Rocket::update(const Input& input, double dt)
 { 
     RocketState state = Rocket::dynamics(m_state, input, dt);
     m_state = state;
     m_data.push_back(state); 
 }
 
-void Rocket::processInput(Input input)
+void Rocket::processInput(const Input& input)
 {
     for (int i{ 0 }; i < m_engines.size(); i++)
     {

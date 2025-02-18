@@ -13,8 +13,8 @@ public:
 	void setY(double y) { m_y = y; }
 	void setZ(double z) { m_z = z; }
 	double magnitude();
-	double dot(Vector3D vec);
-	Vector3D cross(Vector3D vec);
+	double dot(const Vector3D& vec);
+	Vector3D cross(const Vector3D& vec);
 	
 	// Overloaded Operators
 	Vector3D operator/(double scalar);

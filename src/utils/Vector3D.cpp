@@ -11,12 +11,12 @@ double Vector3D::magnitude()
 	return std::sqrt(m_x * m_x + m_y * m_y + m_z * m_z);
 }
 
-double Vector3D::dot(Vector3D vec)
+double Vector3D::dot(const Vector3D& vec)
 {
 	return (m_x * vec.m_x + m_y * vec.m_y + m_z * vec.m_z);
 }
 
-Vector3D Vector3D::cross(Vector3D vec)
+Vector3D Vector3D::cross(const Vector3D& vec)
 {
 	return Vector3D{ 
 		m_y * vec.m_z - m_z * vec.m_y, 
