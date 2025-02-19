@@ -7,8 +7,10 @@
 class Controller
 {
 public:
-	Controller(Rocket rocket, RocketState targetState, double dt, int horizon)
-		: m_rocket(rocket), m_currentState(rocket.getState()), m_targetState(targetState), m_dt(dt), m_horizon(horizon)
+	Controller(Rocket rocket, RocketState targetState, double dt, int horizon, double W_tracking = 1, double W_controlEffort = 0, double W_tilt = 1e3)
+		: m_rocket(rocket), m_currentState(rocket.getState()), m_targetState(targetState), m_dt(dt), m_horizon(horizon),
+		trackingWeight(W_tracking), controlEffortWeight(W_controlEffort), tiltWeight(W_tilt), 
+		trackingErr(0.0), controlEffort(0.0), tiltErr(0.0)
 	{
 		setupOptimizer();
 	}
@@ -22,7 +24,17 @@ private:
 	// some Matrix m_R (see computeCost)
 	nlopt::opt optimizer;
 
-	
+	double trackingWeight;
+	double trackingErr;
+	double controlEffortWeight;
+	double controlEffort;
+	double tiltWeight;
+	double tiltErr;
+	void resetError() { trackingErr = 0; controlEffort = 0; tiltErr = 0; };
+	double computeTrackingError(RocketState& state, RocketState& target);
+	double computeControlEffort(Input& input);
+	double computeTiltErr(RocketState& state);
+
 
 	void setupOptimizer();
 	bool optimize(std::vector<Input>& u);

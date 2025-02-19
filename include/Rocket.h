@@ -59,7 +59,7 @@ public:
 		: m_length{ length },
 		m_radius{ radius },
 		m_mass{ mass },
-		m_cg{ 0.0, 0.0, length / 2 },
+		m_cg{ 0.0, 0.0, 2 * length / 3 },
 		m_engines{}
 	{
 		initEngines(m_radius);

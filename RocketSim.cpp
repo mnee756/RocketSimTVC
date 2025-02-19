@@ -27,15 +27,20 @@ int main() {
     constexpr int c_horizon{ 10 };          // horizon steps for MPC. c_horizon * c_dt is the time horizon
     constexpr double c_dt = 0.1;            // time steps used for controller
     constexpr double c_tUpdate = 0.1;       // time between MPC predictions
+    constexpr double trackingWeight = 1.0;
+    constexpr double controlEffortWeight = 0.0;       
+    constexpr double tiltWeight = 1e5;
+    
     //Vector3D targetPos{ 1.0, 0.5, 10.0 };   
-    Vector3D targetPos{ 0.0, 0.0, 50.0 };
+    Vector3D targetPos{ 0.0, 0.0, 5.0 };
     RocketState targetState{targetPos};
     Vector3D targetPos2{ 1.0, 1.0, 12.0 };
     RocketState targetState2{ targetPos2 };
     
     // Object Creation
     Rocket MaxiRocket{ rocketLength, rocketRadius, rocketMass };
-    Controller mpcController(MaxiRocket, targetState, c_dt, c_horizon);
+    Controller mpcController(MaxiRocket, targetState, c_dt, c_horizon, 
+        trackingWeight, controlEffortWeight, tiltWeight);
 
 
     // Main Simulation Loop

@@ -1,9 +1,6 @@
 #include "Controller.h"
 #include <vector>
 
-
-
-
 Input Controller::computeControl(RocketState currentState, RocketState targetState)
 {
     m_currentState = currentState;
@@ -135,38 +132,23 @@ std::vector<RocketState> Controller::predictStates(const std::vector<Input>& inp
 
 double Controller::computeCost(std::vector<RocketState>& predictedStates, std::vector<Input>& inputs)
 {
-    double totalCost = 0.0;
-
-    double trackingWeight = 1.0;
-    double controlEffortWeight = 0.0;
-    double tiltWeight = 1e5;
-
-    
+    double totalCost = 0.0;    
 
     for (int i = 0; i < predictedStates.size(); ++i)
     {
+        resetError();
+
         // Tracking error cost
-        double trackingError = (predictedStates[i].pos - m_targetState.pos).magnitude();
-
-        // Control effort costs
-        double controlEffort = 0.0;
-        for (int j = 0; j < inputs[i].throttle.size(); ++j)
-        {
-            controlEffort += std::pow(inputs[i].throttle[j], 2); 
-            controlEffort += std::pow(inputs[i].gimbalAngles[j][0], 2) +
-                std::pow(inputs[i].gimbalAngles[j][1], 2); 
-        }
-
-        Vector3D zAxis = m_rocket.transformToWorldFrame(Vector3D(0, 0, 1), predictedStates[i]); // Use your transform function here
-        double tiltDeviation = 1.0 - std::abs(zAxis.dot(Vector3D(0, 0, 1))); // Deviation from vertical (dot product with world Z-axis)
-        double tiltCost = tiltDeviation * tiltDeviation;
+        trackingErr = computeTrackingError(predictedStates[i], m_targetState);
+        controlEffort = computeControlEffort(inputs[i]);
+        tiltErr = computeTiltErr(predictedStates[i]);
 
 
-        totalCost += trackingWeight * trackingError;
+        totalCost += trackingWeight * trackingErr;
         //std::cout << "tracking cost: " << totalCost << '\n';
         totalCost += controlEffortWeight * controlEffort;
         //std::cout << "control effort cost: " << controlEffortWeight * controlEffort << '\n';
-        totalCost += tiltWeight * tiltCost;
+        totalCost += tiltWeight * tiltErr;
         //std::cout << "tilt cost: " << tiltWeight * tiltCost << '\n';
     }
 
@@ -209,5 +191,28 @@ std::vector<Input> Controller::unflattenInput(const std::vector<double>& flat) {
 
     return inputs;
 }
+double Controller::computeTrackingError(RocketState& state, RocketState& target)
+{ 
+    return (state.pos - m_targetState.pos).magnitude(); 
+}
 
+double Controller::computeControlEffort(Input& input)
+{
+    double CE = 0;
+    for (int i = 0; i < input.throttle.size(); ++i)
+    {
+        CE += std::pow(input.throttle[i], 2);
+        CE += std::pow(input.gimbalAngles[i][0], 2) +
+            std::pow(input.gimbalAngles[i][1], 2);
+    }
+    return CE;
+}
 
+double Controller::computeTiltErr(RocketState& state)
+{
+    // Deviation from vertical Cost
+    Vector3D zAxis = m_rocket.transformToWorldFrame(Vector3D(0, 0, 1), state); // Use your transform function here
+    double tiltDeviation = 1.0 - std::abs(zAxis.dot(Vector3D(0, 0, 1))); // Deviation from vertical (dot product with world Z-axis)
+    double tiltCost = tiltDeviation * tiltDeviation;
+    return tiltCost;
+}
