@@ -55,11 +55,12 @@ struct Input
 class Rocket
 {
 public:
-	Rocket(double length, double radius, double mass)
+	Rocket(double length, double radius, double mass, Vector3D initialPos)
 		: m_length{ length },
 		m_radius{ radius },
 		m_mass{ mass },
 		m_cg{ 0.0, 0.0, 2 * length / 3 },
+		m_state{initialPos},
 		m_engines{}
 	{
 		initEngines(m_radius);

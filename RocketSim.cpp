@@ -18,7 +18,8 @@ int main() {
     constexpr double rocketMass{ 90000.0 };
 
     // Simulation Constants
-    constexpr double burnDuration = 20.0; 
+    const Vector3D initialPos{ 0,0,0 };
+    constexpr double burnDuration = 30.0; 
     constexpr double s_dt = 0.01;
     constexpr int numSteps = static_cast<int>(burnDuration / s_dt);
     std::array<double, numSteps> timeArray;
@@ -38,7 +39,7 @@ int main() {
     RocketState targetState2{ targetPos2 };
     
     // Object Creation
-    Rocket MaxiRocket{ rocketLength, rocketRadius, rocketMass };
+    Rocket MaxiRocket{ rocketLength, rocketRadius, rocketMass, initialPos};
     Controller mpcController(MaxiRocket, targetState, c_dt, c_horizon, 
         trackingWeight, controlEffortWeight, tiltWeight);
 
