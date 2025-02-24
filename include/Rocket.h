@@ -84,7 +84,7 @@ public:
 	}
 
 
-	void plotTrajectory() const;
+	void plotTrajectory(double dt) const;
 	RocketState& getState() { return m_state; }
 
 private:

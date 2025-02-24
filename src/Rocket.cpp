@@ -10,7 +10,7 @@ void Rocket::initEngines(double rad)
 {
     double engineLength{ 4.0 };
     double engineRadialPosition{ rad / 2.0 };
-    double thrust = 250000;
+    double thrust = 400000;
 
     m_engines.emplace_back(Vector3D{  engineRadialPosition,  0, engineLength }, engineLength, thrust, 1); // right
     m_engines.emplace_back(Vector3D{  0,  engineRadialPosition, engineLength }, engineLength, thrust, 1); // top
@@ -92,7 +92,7 @@ void Rocket::processInput(const Input& input)
 
 
 
-void Rocket::plotTrajectory() const
+void Rocket::plotTrajectory(double dt) const
 {
     std::vector<double> timeData(m_data.size());
     std::vector<double> xData(m_data.size());
@@ -101,7 +101,7 @@ void Rocket::plotTrajectory() const
 
 
     for (int i = 0; i < m_data.size(); ++i) {
-        timeData[i] = i * 0.1;  //assumes dt =.1
+        timeData[i] = i * dt; 
         xData[i] = m_data[i].pos.getX();  
         yData[i] = m_data[i].pos.getY();  
         zData[i] = m_data[i].pos.getZ();  
