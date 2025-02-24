@@ -18,8 +18,9 @@ int main() {
     constexpr double rocketMass{ 90000.0 };
 
     // Simulation Constants
-    const Vector3D initialPos{ -5, 5, 30 };
-    constexpr double burnDuration = 20.0; 
+    const Vector3D initialPos{ -5, 5, 400 };
+    const Vector3D initialVel{ -3, -3, -50 };
+    constexpr double burnDuration = 40.0; 
     constexpr double s_dt = 0.01;
     constexpr int numSteps = static_cast<int>(burnDuration / s_dt);
     std::array<double, numSteps> timeArray;
@@ -30,8 +31,8 @@ int main() {
     constexpr double c_tUpdate = 0.1;       // time between MPC predictions
     constexpr double trackingWeight = 2.0;
     constexpr double controlEffortWeight = 0.0;       
-    constexpr double tiltWeight = 5e2;
-    constexpr double velWeight = 1.2;
+    constexpr double tiltWeight = 1e3;
+    constexpr double velWeight = 1.5;
     
     //Vector3D targetPos{ 1.0, 0.5, 10.0 };   
     Vector3D targetPos{ 0, 0, 0.0 };
@@ -40,7 +41,7 @@ int main() {
     RocketState targetState2{ targetPos2 };
     
     // Object Creation
-    Rocket MaxiRocket{ rocketLength, rocketRadius, rocketMass, initialPos};
+    Rocket MaxiRocket{ rocketLength, rocketRadius, rocketMass, initialPos, initialVel};
     Controller mpcController(MaxiRocket, targetState, c_dt, c_horizon, 
         trackingWeight, controlEffortWeight, tiltWeight, velWeight);
 

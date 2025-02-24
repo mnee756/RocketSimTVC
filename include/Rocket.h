@@ -26,6 +26,12 @@ struct RocketState
 		q{ 0.0, 0.0, 0.0, 1.0 },
 		qDot{ 0.0, 0.0, 0.0, 0.0 },
 		angVel{ 0.0, 0.0, 0.0 } {}
+	RocketState(Vector3D position, Vector3D vel)
+		: pos{ position },
+		vel{ vel },
+		q{ 0.0, 0.0, 0.0, 1.0 },
+		qDot{ 0.0, 0.0, 0.0, 0.0 },
+		angVel{ 0.0, 0.0, 0.0 } {}
 };
 
 struct Input
@@ -55,12 +61,12 @@ struct Input
 class Rocket
 {
 public:
-	Rocket(double length, double radius, double mass, Vector3D initialPos)
+	Rocket(double length, double radius, double mass, Vector3D initialPos, Vector3D initialVel)
 		: m_length{ length },
 		m_radius{ radius },
 		m_mass{ mass },
 		m_cg{ 0.0, 0.0, 2 * length / 3 },
-		m_state{initialPos},
+		m_state{initialPos, initialVel},
 		m_engines{}
 	{
 		initEngines(m_radius);
